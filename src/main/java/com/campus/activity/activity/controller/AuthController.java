@@ -1,11 +1,11 @@
-package com.campus.activity.controller;
+package com.campus.activity.activity.controller;
 
 import com.campus.activity.common.ApiResult;
-import com.campus.activity.dto.request.LoginRequest;
-import com.campus.activity.dto.request.RegisterRequest;
-import com.campus.activity.dto.response.LoginResponse;
-import com.campus.activity.dto.response.UserInfoResponse;
-import com.campus.activity.service.AuthService;
+import com.campus.activity.activity.dto.request.LoginRequest;
+import com.campus.activity.activity.dto.request.RegisterRequest;
+import com.campus.activity.activity.dto.response.LoginResponse;
+import com.campus.activity.activity.dto.response.UserInfoResponse;
+import com.campus.activity.activity.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;

@@ -1,4 +1,4 @@
-package com.campus.activity.dto.response;
+package com.campus.activity.activity.dto.response;
 
 import lombok.Data;
 

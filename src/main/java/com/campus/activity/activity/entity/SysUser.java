@@ -1,4 +1,4 @@
-package com.campus.activity.entity;
+package com.campus.activity.activity.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

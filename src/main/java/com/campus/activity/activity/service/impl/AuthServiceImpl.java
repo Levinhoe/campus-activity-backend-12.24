@@ -1,17 +1,17 @@
-package com.campus.activity.service.impl;
+package com.campus.activity.activity.service.impl;
 
 import com.campus.activity.common.ErrorCode;
-import com.campus.activity.dto.request.LoginRequest;
-import com.campus.activity.dto.request.RegisterRequest;
-import com.campus.activity.dto.response.LoginResponse;
-import com.campus.activity.dto.response.UserInfoResponse;
-import com.campus.activity.entity.SysRole;
-import com.campus.activity.entity.SysUser;
+import com.campus.activity.activity.dto.request.LoginRequest;
+import com.campus.activity.activity.dto.request.RegisterRequest;
+import com.campus.activity.activity.dto.response.LoginResponse;
+import com.campus.activity.activity.dto.response.UserInfoResponse;
+import com.campus.activity.activity.entity.SysRole;
+import com.campus.activity.activity.entity.SysUser;
 import com.campus.activity.exception.BizException;
-import com.campus.activity.repository.SysRoleRepository;
-import com.campus.activity.repository.SysUserRepository;
+import com.campus.activity.activity.repository.SysRoleRepository;
+import com.campus.activity.activity.repository.SysUserRepository;
 import com.campus.activity.security.JwtTokenProvider;
-import com.campus.activity.service.AuthService;
+import com.campus.activity.activity.service.AuthService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

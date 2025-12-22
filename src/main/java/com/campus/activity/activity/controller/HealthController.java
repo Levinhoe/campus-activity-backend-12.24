@@ -1,4 +1,4 @@
-package com.campus.activity.controller;
+package com.campus.activity.activity.controller;
 
 import com.campus.activity.common.ApiResult;
 import org.springframework.web.bind.annotation.GetMapping;

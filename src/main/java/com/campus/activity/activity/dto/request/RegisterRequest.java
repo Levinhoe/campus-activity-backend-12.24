@@ -1,4 +1,4 @@
-package com.campus.activity.dto.request;
+package com.campus.activity.activity.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

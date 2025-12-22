@@ -1,7 +1,7 @@
 package com.campus.activity.security;
 
-import com.campus.activity.entity.SysUser;
-import com.campus.activity.repository.SysUserRepository;
+import com.campus.activity.activity.entity.SysUser;
+import com.campus.activity.activity.repository.SysUserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;

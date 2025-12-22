@@ -1,6 +1,6 @@
-package com.campus.activity.repository;
+package com.campus.activity.activity.repository;
 
-import com.campus.activity.entity.SysRole;
+import com.campus.activity.activity.entity.SysRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
