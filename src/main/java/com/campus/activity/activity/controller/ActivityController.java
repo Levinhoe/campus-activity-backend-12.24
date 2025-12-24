@@ -1,61 +1,60 @@
 package com.campus.activity.activity.controller;
 
-import com.campus.activity.activity.dto.response.ActivityDetailResponse;
-import com.campus.activity.activity.dto.response.ActivityListItemResponse;
-import com.campus.activity.activity.dto.response.MyRegistrationItemResponse;
+import com.campus.activity.activity.dto.response.ActivityDetailVO;
+import com.campus.activity.activity.dto.response.ActivityListItemVO;
 import com.campus.activity.activity.service.ActivityService;
 import com.campus.activity.common.ApiResult;
-import com.campus.activity.security.SecurityUtil;
+import com.campus.activity.common.PageResult;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 @RestController
 @RequestMapping("/api/activities")
 @RequiredArgsConstructor
+@Tag(name = "Activities")
 public class ActivityController {
 
     private final ActivityService activityService;
+    private static final DateTimeFormatter DT_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     @GetMapping
-    public ApiResult<Page<ActivityListItemResponse>> list(
-            @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) Byte status,
-            @RequestParam(defaultValue = "0") int page,
+    @Operation(summary = "List activities")
+    public ApiResult<PageResult<ActivityListItemVO>> list(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String timeFrom,
+            @RequestParam(required = false) String timeTo,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "activityId"));
-        return ApiResult.ok(activityService.list(keyword, status, pageable));
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "activityId"));
+        LocalDateTime from = parseDateTime(timeFrom);
+        LocalDateTime to = parseDateTime(timeTo);
+        return ApiResult.ok(activityService.list(type, from, to, status, pageable));
     }
 
     @GetMapping("/{id}")
-    public ApiResult<ActivityDetailResponse> detail(@PathVariable("id") Long id) {
-        Long userId = SecurityUtil.getUserId(); // 你项目里已有 token，建议这里取 uid
-        return ApiResult.ok(activityService.detail(id, userId));
+    @Operation(summary = "Get activity detail")
+    public ApiResult<ActivityDetailVO> detail(@PathVariable("id") Long id) {
+        return ApiResult.ok(activityService.detail(id));
     }
 
-    @PostMapping("/{id}/register")
-    public ApiResult<Void> register(@PathVariable("id") Long id) {
-        Long userId = SecurityUtil.getUserId();
-        activityService.register(id, userId);
-        return ApiResult.ok();
-    }
-
-    @PostMapping("/{id}/cancel")
-    public ApiResult<Void> cancel(@PathVariable("id") Long id) {
-        Long userId = SecurityUtil.getUserId();
-        activityService.cancel(id, userId);
-        return ApiResult.ok();
-    }
-
-    @GetMapping("/me")
-    public ApiResult<List<MyRegistrationItemResponse>> my() {
-        Long userId = SecurityUtil.getUserId();
-        return ApiResult.ok(activityService.myRegistrations(userId));
+    private LocalDateTime parseDateTime(String value) {
+        if (value == null || value.isBlank()) return null;
+        try {
+            return LocalDateTime.parse(value);
+        } catch (DateTimeParseException ignored) {
+            return LocalDateTime.parse(value, DT_FMT);
+        }
     }
 }

@@ -12,7 +12,7 @@ spring:
     password: 18560861747xB
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
     open-in-view: false
     properties:
@@ -22,3 +22,7 @@ spring:
 jwt:
   secret: "campus-activity-jwt-secret-please-change-this-32chars"
   expire-minutes: 1440
+
+app:
+  upload-dir: ./uploads
+  default-poster: /uploads/default-poster.png

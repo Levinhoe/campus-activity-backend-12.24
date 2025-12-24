@@ -6,6 +6,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
 import java.util.List;
 
 @Service
@@ -20,18 +21,21 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         SysUser user = userRepo.findByAccount(username)
-                .orElseThrow(() -> new UsernameNotFoundException("账号不存在"));
+                .orElseThrow(() -> new UsernameNotFoundException("account not found"));
 
-        String roleCode = user.getRole().getRoleCode();
+        String roleCode = user.getRole() == null ? null : user.getRole().getRoleCode();
+        String normalized = roleCode == null ? "USER" : roleCode.trim().toUpperCase(Locale.ROOT);
+        if (!normalized.startsWith("ROLE_")) {
+            normalized = "ROLE_" + normalized;
+        }
         boolean enabled = user.getStatus() != null && user.getStatus() == 1;
-
 
         return new org.springframework.security.core.userdetails.User(
                 user.getAccount(),
                 user.getPasswordHash(),
                 enabled,
                 true, true, true,
-                List.of(new SimpleGrantedAuthority("ROLE_" + roleCode))
+                List.of(new SimpleGrantedAuthority(normalized))
         );
     }
 }

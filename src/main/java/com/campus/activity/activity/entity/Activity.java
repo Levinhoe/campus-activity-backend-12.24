@@ -30,26 +30,29 @@ public class Activity {
     @Column(name = "cover_url", length = 255)
     private String coverUrl;
 
-    @Column(name = "start_time", nullable = false)
+    @Column(name = "start_time")
     private LocalDateTime startTime;
 
-    @Column(name = "end_time", nullable = false)
+    @Column(name = "end_time")
     private LocalDateTime endTime;
 
-    @Column(name = "signup_start", nullable = false)
-    private LocalDateTime signupStart;
+    @Column(name = "signup_start")
+    private LocalDateTime enrollStart;
 
-    @Column(name = "signup_end", nullable = false)
-    private LocalDateTime signupEnd;
+    @Column(name = "signup_end")
+    private LocalDateTime enrollDeadline;
 
     @Column(nullable = false)
+    private Byte status; // domain-specific status if any
+
+    @Column(nullable = true)
     private Integer capacity;
 
     @Column(name = "signed_count", nullable = false)
-    private Integer signedCount;
+    private Integer enrolledCount;
 
-    @Column(nullable = false)
-    private Byte status; // 0/1/2/3 对应 ActivityStatus
+    @Column(name = "is_volunteer", nullable = false)
+    private Boolean isVolunteer;
 
     @Column(name = "created_by", nullable = false)
     private Long createdBy;

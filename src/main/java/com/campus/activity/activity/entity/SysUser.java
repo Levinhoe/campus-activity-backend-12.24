@@ -41,4 +41,7 @@ public class SysUser {
     @Column(name = "status", nullable = false)
     private Byte status;
 
+    @Column(name = "created_at", nullable = false)
+    private java.time.LocalDateTime createdAt;
+
 }

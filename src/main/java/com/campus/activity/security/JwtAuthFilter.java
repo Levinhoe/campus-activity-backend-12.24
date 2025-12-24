@@ -1,6 +1,5 @@
 package com.campus.activity.security;
 
-import com.campus.activity.exception.BizException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -11,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -20,6 +20,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Component
@@ -43,7 +46,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // 1️⃣ 从 Header 中取 Authorization
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -51,9 +53,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-
         try {
-            // 2️⃣ 解析 JWT
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(signingKey)
                     .build()
@@ -62,43 +62,51 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             String username = claims.getSubject();
             Object uidObj = claims.get("uid");
-
             if (username == null || uidObj == null) {
-                throw new BizException(401, "非法 token");
+                SecurityContextHolder.clearContext();
+                filterChain.doFilter(request, response);
+                return;
             }
 
             Long uid = Long.valueOf(uidObj.toString());
-
-            // 3️⃣ 如果当前还没有认证信息，才进行认证
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                UserDetails userDetails =
-                        userDetailsService.loadUserByUsername(username);
-
-                // 4️⃣ 构建认证对象
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                Collection<SimpleGrantedAuthority> authorities = resolveAuthorities(claims, userDetails);
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
                                 null,
-                                userDetails.getAuthorities()
+                                authorities
                         );
-
-                // 🔥 关键：把 uid 放进 details
-                authentication.setDetails(Map.of("uid", uid));
-
-                authentication.setDetails(new WebAuthenticationDetailsSource()
-                        .buildDetails(request));
-
-                // 5️⃣ 放入 SecurityContext
-                SecurityContextHolder.getContext()
-                        .setAuthentication(authentication);
+                authentication.setDetails(Map.of(
+                        "uid", uid,
+                        "web", new WebAuthenticationDetailsSource().buildDetails(request)
+                ));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-
         } catch (Exception e) {
-            // token 非法/过期 → 清空上下文，继续过滤链（由后续安全机制拦）
             SecurityContextHolder.clearContext();
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private Collection<SimpleGrantedAuthority> resolveAuthorities(Claims claims, UserDetails userDetails) {
+        Object roleObj = claims.get("role");
+        if (roleObj != null) {
+            String normalized = normalizeRole(roleObj.toString());
+            return List.of(new SimpleGrantedAuthority(normalized));
+        }
+        return userDetails.getAuthorities().stream()
+                .map(a -> new SimpleGrantedAuthority(a.getAuthority()))
+                .toList();
+    }
+
+    private String normalizeRole(String role) {
+        String normalized = role == null ? "USER" : role.trim().toUpperCase(Locale.ROOT);
+        if (!normalized.startsWith("ROLE_")) {
+            normalized = "ROLE_" + normalized;
+        }
+        return normalized;
     }
 }
