@@ -1,0 +1,6 @@
+app:
+  admin:
+    init:
+      enabled: true
+      account: admin
+      password: admin123
