@@ -8,5 +8,6 @@ import java.util.List;
 public record SurveyTemplateVO(
         @Schema(description = "templateId") Long templateId,
         @Schema(description = "title") String title,
+        @Schema(description = "description") String description,
         @Schema(description = "questions") List<SurveyQuestionVO> questions
 ) {}

@@ -10,9 +10,11 @@ import com.campus.activity.activity.dto.response.AdminActivityCreateResponse;
 import com.campus.activity.activity.dto.response.ActivityReportVO;
 import com.campus.activity.activity.dto.response.ActivityListItemVO;
 import com.campus.activity.activity.dto.response.RegistrationAuditVO;
+import com.campus.activity.activity.dto.response.NotificationVO;
 import com.campus.activity.activity.service.AdminActivityService;
 import com.campus.activity.activity.service.ActivityService;
 import com.campus.activity.activity.service.AttendanceService;
+import com.campus.activity.activity.service.NotificationService;
 import com.campus.activity.common.ApiResult;
 import com.campus.activity.common.PageResult;
 import com.campus.activity.security.SecurityUtil;
@@ -39,12 +41,14 @@ public class AdminController {
     private final AdminActivityService adminService;
     private final AttendanceService attendanceService;
     private final ActivityService activityService;
+    private final NotificationService notificationService;
     private static final DateTimeFormatter DT_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    public AdminController(AdminActivityService adminService, AttendanceService attendanceService, ActivityService activityService) {
+    public AdminController(AdminActivityService adminService, AttendanceService attendanceService, ActivityService activityService, NotificationService notificationService) {
         this.adminService = adminService;
         this.attendanceService = attendanceService;
         this.activityService = activityService;
+        this.notificationService = notificationService;
     }
 
     @PostMapping("/activities")
@@ -68,6 +72,24 @@ public class AdminController {
         LocalDateTime from = parseDateTime(timeFrom);
         LocalDateTime to = parseDateTime(timeTo);
         return ApiResult.ok(activityService.list(type, from, to, status, pageable));
+    }
+
+    @GetMapping("/notifications")
+    @Operation(summary = "Admin notifications")
+    public ApiResult<PageResult<NotificationVO>> notifications(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Long userId = SecurityUtil.getUserId();
+        return ApiResult.ok(notificationService.list(userId, page, size));
+    }
+
+    @DeleteMapping("/notifications/{id}")
+    @Operation(summary = "Delete notification")
+    public ApiResult<Void> deleteNotification(@PathVariable("id") Long id) {
+        Long userId = SecurityUtil.getUserId();
+        notificationService.delete(userId, id);
+        return ApiResult.ok();
     }
 
     @RequestMapping(value = "/activities/{id}/status", method = {RequestMethod.PATCH, RequestMethod.POST})

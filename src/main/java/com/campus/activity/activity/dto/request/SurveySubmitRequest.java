@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
 @Data
 public class SurveySubmitRequest {
@@ -12,5 +13,6 @@ public class SurveySubmitRequest {
     @Max(5)
     private Integer ratingScore;
 
+    @JsonAlias({"suggestion"})
     private String suggestionText;
 }

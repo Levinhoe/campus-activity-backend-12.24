@@ -157,7 +157,14 @@ public class AdminActivityService {
         activity.setUpdatedAt(LocalDateTime.now());
         activityRepo.save(activity);
 
-        notificationService.notify(reg.getUserId(), "Registration approved", "Your registration is approved.");
+        String activityTitle = activity.getTitle() == null ? "" : activity.getTitle();
+        notificationService.notifyRegistration(
+                reg.getUserId(),
+                activity.getActivityId(),
+                activityTitle,
+                true,
+                null
+        );
     }
 
     @Transactional
@@ -172,7 +179,15 @@ public class AdminActivityService {
         reg.setUpdatedAt(LocalDateTime.now());
         regRepo.save(reg);
 
-        notificationService.notify(reg.getUserId(), "Registration rejected", "Reason: " + req.getReason());
+        Activity activity = activityRepo.findById(reg.getActivityId()).orElse(null);
+        String activityTitle = activity == null ? "" : activity.getTitle();
+        notificationService.notifyRegistration(
+                reg.getUserId(),
+                reg.getActivityId(),
+                activityTitle,
+                false,
+                req.getReason()
+        );
     }
 
     public ActivityReportVO report(Long activityId) {
